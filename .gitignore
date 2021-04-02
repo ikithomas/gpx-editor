@@ -1,3 +1,5 @@
-target.gpx
-result.gpx
 venv
+input
+output
+__pycache__
+.pytest_cache

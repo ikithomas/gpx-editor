@@ -119,6 +119,26 @@ class TestGPX:
         assert gpx.trkpts[1].time() == datetime.datetime(2021, 3, 7, 0, 29, 4)
         assert gpx.trkpts[2].time() == datetime.datetime(2021, 3, 7, 0, 29, 9)
 
+    def test_get_meta_datetime(self):
+        gpx = GPX('fixtures/track3.gpx', lat_p=7, lon_p=7, ele_p=1, ms=True)
+        assert gpx.get_meta_datetime() == datetime.datetime(2021, 3, 7, 0, 29, 9)
+
+    def test_set_meta_datetime(self):
+        gpx = GPX('fixtures/track3.gpx', lat_p=7, lon_p=7, ele_p=1, ms=True)
+        gpx.set_meta_datetime(datetime.datetime(2021, 4, 10, 23, 45, 26))
+        assert gpx.get_meta_datetime() == datetime.datetime(2021, 4, 10, 23, 45, 26)
+
+    #########################################################################
+    # Set the GPX record with a new date time, others remain unchanged
+    #
+    def test_set_new_datetime(self):
+        gpx = GPX('fixtures/track3.gpx', lat_p=7, lon_p=7, ele_p=1, ms=True)
+        new_datetime = datetime.datetime(2021, 4, 10, 23, 45, 26)
+        assert gpx.trkpts[0].time() == datetime.datetime(2021, 3, 7, 0, 29, 9)
+        gpx.set_new_datetime(new_datetime)
+        assert gpx.trkpts[0].time() == datetime.datetime(2021, 4, 10, 23, 45, 26)
+        assert gpx.get_meta_datetime() == datetime.datetime(2021, 4, 10, 23, 45, 26)
+
 
 def test_distance_between():
     gpx = GPX('fixtures/track3.gpx', lat_p=7, lon_p=7, ele_p=1, ms=True)
@@ -254,6 +274,7 @@ def test_pace_of():
 
     trkpts = gpx.trkpts
     assert pace_of(trkpts) == 9.666229736338568
+
 
 ##########################################################################
 # Set time, given desired speed

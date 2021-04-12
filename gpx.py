@@ -221,6 +221,7 @@ class GPX:
         self.root = self.tree.getroot()
         self.namespace = '{http://www.topografix.com/GPX/1/1}'
         self.trkseg = self.root.find(f'{self.namespace}trk').find(f'{self.namespace}trkseg')
+        self.meta_datetime = self.root.find(f'{self.namespace}metadata').find(f'{self.namespace}time')
         self.lat_p = lat_p
         self.lon_p = lon_p
         self.ele_p = ele_p
@@ -242,6 +243,27 @@ class GPX:
 
         self.load_trkpts()
         self.tree.write(file_path, encoding='utf-8', xml_declaration=True)
+
+    def set_new_datetime(self, new_datetime):
+        time_delta_in_second = (new_datetime - self.get_meta_datetime()).total_seconds()
+        self.set_meta_datetime(new_datetime)
+
+        for trkpt in self.trkpts:
+            trkpt.shift_time(time_delta_in_second)
+        self.load_trkpts()
+
+    def get_meta_datetime(self):
+        if self.ms:
+          return datetime.datetime.strptime(self.meta_datetime.text, '%Y-%m-%dT%H:%M:%S.%fZ' )
+        else:
+          return datetime.datetime.strptime(self.meta_datetime.text, '%Y-%m-%dT%H:%M:%SZ' )
+
+    def set_meta_datetime(self, datetime):
+        if self.ms:
+            rfc_3339_timestamp = datetime.strftime('%Y-%m-%dT%H:%M:%S.%fZ').replace('000000Z', '000Z')
+        else:
+            rfc_3339_timestamp = datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+        self.meta_datetime.text = rfc_3339_timestamp
 
     # trkpts: List[Trackpoints]
     def remove_trkpts(self, trkpts):
